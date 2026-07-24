@@ -1,0 +1,8 @@
+services:
+
+  nginx:
+    image: nginx:latest
+    container_name: sre-nginx
+    ports:
+      - "8080:80"
+    restart: always
