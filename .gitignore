@@ -1,0 +1,22 @@
+# Logs
+*.log
+logs/
+
+# Ambiente Python
+__pycache__/
+*.pyc
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Kubernetes
+*.secret.yaml
+
+# Docker
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db
