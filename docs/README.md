@@ -1,37 +1,123 @@
-# SRE LAB
+# 🚀 SRE LAB
 
-Laboratório pessoal de Site Reliability Engineering.
+Laboratório prático para estudo de Site Reliability Engineering (SRE), DevOps e Observabilidade.
 
-## Ambiente
+Este projeto simula um ambiente de produção utilizando Docker, Nginx, Flask, Prometheus e Grafana para monitoramento de serviços.
 
-- Windows 11
-- WSL2
-- Ubuntu 24.04
+---
 
 ## Objetivos
 
+- Aprender Docker e Docker Compose
+- Implementar Health Checks
+- Monitorar aplicações com Prometheus
+- Criar dashboards no Grafana
+- Simular ambientes reais utilizados por equipes SRE
+- Documentar procedimentos operacionais (Runbooks)
+
+---
+
+## Tecnologias
+
 - Docker
-- Kubernetes
-- Linux
-- Observabilidade
+- Docker Compose
+- Python 3
+- Flask
+- Nginx
 - Prometheus
 - Grafana
-- Loki
-- Tempo
-- OpenTelemetry
-- Datadog
-- Dynatrace
-- Terraform
-- CI/CD
-- Simulação de incidentes
+- Git
+- GitHub
 
-## Estrutura
+---
 
-- apps: aplicações usadas nos testes
-- docker: ambientes Docker Compose
-- kubernetes: manifests Kubernetes
-- monitoring: ferramentas de observabilidade
-- terraform: infraestrutura como código
-- scripts: automações
-- runbooks: procedimentos de incidentes
+## Estrutura do Projeto
 
+```text
+SRE-LAB
+├── apps/
+├── docker/
+├── docs/
+├── kubernetes/
+├── monitoring/
+├── runbooks/
+├── scripts/
+└── terraform/
+```
+
+---
+
+## Arquitetura
+
+```
+          Usuário
+             │
+             ▼
+          Nginx
+             │
+             ▼
+         Flask API
+             │
+      ┌──────┴──────┐
+      ▼             ▼
+Prometheus      Health Check
+      │
+      ▼
+   Grafana
+```
+
+---
+
+## Como executar
+
+Clone o projeto:
+
+```bash
+git clone git@github.com:lidiannejorge/SRE-LAB.git
+```
+
+Entre na pasta:
+
+```bash
+cd SRE-LAB
+```
+
+Inicie os containers:
+
+```bash
+docker compose up -d
+```
+
+Verifique os serviços:
+
+```bash
+docker ps
+```
+
+---
+
+## Funcionalidades
+
+- API Flask
+- Endpoint `/health`
+- Monitoramento com Prometheus
+- Dashboards Grafana
+- Containers Docker
+- Health Checks
+
+---
+
+## Roadmap
+
+- [x] Docker
+- [x] Docker Compose
+- [x] API Flask
+- [ ] Prometheus
+- [ ] Grafana
+- [ ] Loki
+- [ ] Promtail
+- [ ] Kubernetes
+- [ ] GitHub Actions
+- [ ] Terraform
+
+---
