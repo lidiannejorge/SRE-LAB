@@ -1,20 +1,55 @@
 global:
+
   scrape_interval: 15s
 
 
+
 scrape_configs:
+
 
   - job_name: "sre-api"
 
     metrics_path: "/metrics"
 
     static_configs:
+
       - targets:
+
           - "api:5000"
+
+
+
+
+  - job_name: "cliente-service"
+
+    metrics_path: "/metrics"
+
+    static_configs:
+
+      - targets:
+
+          - "cliente-service:5001"
+
+
+
+
+  - job_name: "pedido-service"
+
+    metrics_path: "/metrics"
+
+    static_configs:
+
+      - targets:
+
+          - "pedido-service:5002"
+
+
 
 
   - job_name: "node"
 
     static_configs:
+
       - targets:
+
           - "node-exporter:9100"
