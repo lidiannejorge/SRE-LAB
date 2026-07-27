@@ -47,6 +47,18 @@ def users():
     )
 
 
+# Rota para simular incidente SRE
+@app.route("/erro")
+def erro():
+
+    return jsonify(
+        {
+            "error": "Erro simulado SRE",
+            "status": "FAILED"
+        }
+    ), 500
+
+
 if __name__ == "__main__":
 
     app.run(
