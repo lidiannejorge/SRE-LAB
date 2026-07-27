@@ -367,39 +367,51 @@ services:
 
       - sre-network
 
+
+
+
+
+
   otel-collector:
 
+
     image: otel/opentelemetry-collector-contrib:latest
+
 
     container_name: sre-otel-collector
 
 
-    environment:
-
-      - DT_API_TOKEN=${DT_API_TOKEN}
-      - DT_ENDPOINT=https://cqs16759.live.dynatrace.com/api/v2/otlp
-
 
     command:
+
 
       - "--config=/etc/otelcol/config.yaml"
 
 
+
     ports:
 
+
       - "4317:4317"
+
       - "4318:4318"
+
       - "8889:8889"
+
 
 
     volumes:
 
+
       - ./monitoring/otel-collector/config.yaml:/etc/otelcol/config.yaml
+
 
 
     networks:
 
+
       - sre-network
+
 
 
 
