@@ -1,507 +1,554 @@
-# 🚀 SRE-LAB — Plataforma de Observabilidade e Confiabilidade
+# 🚀 SRE-LAB — Plataforma de Observabilidade e Engenharia de Confiabilidade
 
+Projeto desenvolvido para demonstrar conceitos e práticas de **Site Reliability Engineering (SRE)**, incluindo monitoramento, observabilidade, métricas, logs, distributed tracing, containers e análise de incidentes.
 
-## 📌 Visão Geral
+O objetivo do laboratório é simular um ambiente real de produção com múltiplos serviços, permitindo acompanhar:
 
-SRE-LAB é um ambiente de laboratório desenvolvido para praticar conceitos de
-Site Reliability Engineering (SRE), DevOps, observabilidade e operação de sistemas.
-
-O projeto simula um ambiente próximo de produção contendo APIs, microsserviços,
-monitoramento de métricas, dashboards, alertas e testes de incidentes.
-
-O objetivo principal é aplicar práticas utilizadas por equipes SRE:
-
-- Monitoramento de disponibilidade
-- Observabilidade de aplicações
-- Análise de performance
-- Detecção de falhas
-- Resposta a incidentes
-- Automação operacional
-
+* Disponibilidade das aplicações
+* Performance dos serviços
+* Erros e falhas
+* Dependências entre microsserviços
+* Rastreamento distribuído de requisições
+* Monitoramento com ferramentas utilizadas no mercado
 
 ---
 
-# 🏗️ Arquitetura da Solução
+# 📌 Arquitetura do Projeto
 
-
-A arquitetura do laboratório é composta por:
-
+A arquitetura é baseada em microsserviços executando em containers Docker.
 
 ```
-                 Usuário
-                    |
-                    v
-              Gateway/API
-                    |
-        -------------------------
-        |                       |
-        v                       v
-Cliente Service          Pedido Service
-        |                       |
-        -------------------------
-                    |
-                    v
-              PostgreSQL
+                         Usuário
+                            |
+                            |
+                            v
+
+                     +-------------+
+                     |   sre-api   |
+                     |   Flask     |
+                     |   :5000     |
+                     +-------------+
+                            |
+          +-----------------+-----------------+
+          |                                   |
+          v                                   v
+
++----------------------+          +----------------------+
+| cliente-service      |          | pedido-service       |
+| Flask                |          | Flask                |
+| :5001                |          | :5002                |
++----------------------+          +----------------------+
+          |                                   |
+          v                                   v
+
+       PostgreSQL                         PostgreSQL
 
 
-Aplicações
-    |
-    v
-Métricas Prometheus
-    |
-    v
-Grafana
-    |
-    v
-Alertas SRE
+                    Observabilidade
+
+                            |
+                            v
+
+        +--------------------------------+
+        | OpenTelemetry Collector        |
+        +--------------------------------+
+                 |
+        +--------+---------+
+        |                  |
+        v                  v
+
+   Dynatrace            Jaeger
+
+
+        +--------------------------------+
+        | Prometheus                     |
+        | Grafana                        |
+        | Loki                           |
+        | Promtail                       |
+        +--------------------------------+
 ```
-
 
 ---
 
-# 🛠️ Tecnologias Utilizadas
+# 🏗️ Serviços da Aplicação
 
+## sre-api
 
-## Aplicação
+Serviço principal responsável por receber chamadas e encaminhar para os microsserviços.
 
-- Python
-- Flask
-- API REST
+Porta:
 
+```
+5000
+```
 
-## Infraestrutura
+Endpoints:
 
-- Docker
-- Docker Compose
-- Linux
+```
+GET /
+GET /health
+GET /users
+GET /clientes
+GET /pedidos
+GET /erro
+GET /metrics
+```
 
+Responsabilidades:
 
-## Banco de Dados
-
-- PostgreSQL
-
-
-## Observabilidade
-
-- Prometheus
-- Grafana
-- Prometheus Flask Exporter
-
-
-## Engenharia
-
-- Git
-- Conceitos SRE
-- Monitoramento
-- Incident Response
-- SLIs / SLOs
-- Automação
-
+* API Gateway simples
+* Comunicação entre serviços
+* Geração de traces distribuídos
+* Exposição de métricas
 
 ---
 
-# 📂 Estrutura do Projeto
+## cliente-service
 
+Microsserviço responsável pelo gerenciamento de clientes.
+
+Porta:
 
 ```
-SRE-LAB
-│
-├── apps
-│   └── api
-│       └── API principal Flask
-│
-├── services
-│   ├── cliente-service
-│   │   └── Serviço de clientes
-│   │
-│   ├── pedido-service
-│   │   └── Serviço de pedidos
-│   │
-│   ├── gateway-api
-│   │   └── Gateway da aplicação
-│   │
-│   └── load-generator
-│       └── Geração de tráfego
-│
-├── monitoring
-│   ├── prometheus
-│   │   └── Configuração de métricas
-│   │
-│   └── grafana
-│       └── Dashboards e alertas
-│
-├── database
-│   └── postgres
-│
-├── kubernetes
-│
-├── terraform
-│
-├── scripts
-│
-├── runbooks
-│
-├── shared
-│   └── Código compartilhado
-│
-├── docker-compose.yml
-│
-└── Makefile
+5001
 ```
 
+Endpoint:
+
+```
+GET /clientes
+```
+
+Exemplo de resposta:
+
+```json
+[
+  {
+    "id":1,
+    "nome":"Cliente Teste",
+    "email":"teste@email.com"
+  }
+]
+```
 
 ---
 
-# ▶️ Como Executar
+## pedido-service
 
+Microsserviço responsável pelos pedidos.
 
-## Pré-requisitos
+Porta:
 
-
-Instalar:
-
-- Docker
-- Docker Compose
-- Git
-
-
-## Clonar o projeto
-
-
-```bash
-git clone <repositorio>
-cd SRE-LAB
+```
+5002
 ```
 
+Endpoint:
 
-## Subir ambiente
+```
+GET /pedidos
+```
 
+Exemplo:
+
+```json
+[
+  {
+    "id":1,
+    "produto":"Notebook",
+    "valor":3500
+  }
+]
+```
+
+---
+
+# 🐳 Containerização
+
+Todos os serviços são executados utilizando Docker Compose.
+
+Serviços:
+
+```
+sre-api
+sre-cliente-service
+sre-pedido-service
+sre-postgres
+sre-prometheus
+sre-grafana
+sre-loki
+sre-promtail
+sre-otel-collector
+sre-jaeger
+sre-node-exporter
+```
+
+Comando para iniciar:
 
 ```bash
 docker compose up -d
 ```
 
-
-## Verificar containers
-
+Verificar containers:
 
 ```bash
 docker ps
 ```
 
-
-Serviços esperados:
-
-
-- API
-- Cliente Service
-- Pedido Service
-- PostgreSQL
-- Prometheus
-- Grafana
-
-
----
-
-# 🌐 Acessos
-
-
-## API
-
-```
-http://localhost:5000
-```
-
-
-## Prometheus
-
-```
-http://localhost:9090
-```
-
-
-## Grafana
-
-```
-http://localhost:3000
-```
-
-
 ---
 
 # 📊 Observabilidade
 
+O projeto implementa os três pilares da observabilidade:
 
-O projeto possui monitoramento utilizando Prometheus e Grafana.
+## 1. Métricas
 
+Ferramentas:
 
-## Métricas coletadas
+* Prometheus
+* Grafana
+* Node Exporter
 
+Métricas coletadas:
 
-### Disponibilidade
+* Quantidade de requisições
+* Status HTTP
+* Tempo de resposta
+* Uso de recursos
 
-Métrica:
+Exemplos:
 
 ```
-up{job="sre-api"}
+flask_http_request_total
+
+cliente_service_requests_total
+
+pedido_service_requests_total
 ```
-
-
-Objetivo:
-
-Verificar se a aplicação está disponível.
-
 
 ---
 
-## Request Rate
+# 🔎 Distributed Tracing
 
+Implementado utilizando:
 
-Quantidade de requisições por segundo:
+* OpenTelemetry
+* OTLP
+* Dynatrace
+* Jaeger
 
+Exemplo de rastreamento:
 
 ```
-sum(rate(flask_http_request_total[5m]))
+GET /clientes
+
+        |
+        v
+
+sre-api
+
+        |
+        v
+
+call-cliente-service
+
+        |
+        v
+
+cliente-service
+
+        |
+        v
+
+listar-clientes
 ```
 
+Exemplo no Dynatrace:
 
-Objetivo:
+```
+GET /clientes
 
-Monitorar volume de tráfego da aplicação.
+Duration:
+32 ms
 
+Status:
+200
+```
 
 ---
 
-## Latência P95
-
-
-Métrica utilizada:
-
+Outro fluxo:
 
 ```
-histogram_quantile(
-0.95,
-sum(rate(flask_http_request_duration_seconds_bucket[5m])) by (le)
-)
+GET /pedidos
+
+        |
+        v
+
+sre-api
+
+        |
+        v
+
+call-pedido-service
+
+        |
+        v
+
+pedido-service
+
+        |
+        v
+
+listar-pedidos
 ```
-
-
-Objetivo:
-
-Medir experiência do usuário e identificar lentidão.
-
 
 ---
 
-## Error Rate
+# 🚨 Simulação de Incidentes
 
-
-Percentual de erros HTTP 5xx:
-
-
-```
-(
-sum(rate(flask_http_request_total{status=~"5.."}[5m]))
-/
-sum(rate(flask_http_request_total[5m]))
-)
-*100
-```
-
-
-Objetivo:
-
-Identificar degradação da aplicação.
-
-
----
-
-# 📈 Dashboards Grafana
-
-
-Dashboard criado:
-
-
-## SRE-LAB Observability Dashboard
-
-
-Painéis:
-
-
-✅ API Availability
-
-✅ API Request Rate
-
-✅ API Latency P95
-
-✅ Cliente Service RPS
-
-✅ Pedido Service RPS
-
-✅ API Error Rate %
-
-
----
-
-# 🚨 Alertas SRE Implementados
-
-
-## API High Error Rate
-
-
-Objetivo:
-
-Detectar aumento de erros HTTP 500.
-
-
-Condição:
-
-```
-Error Rate > 5%
-```
-
-
----
-
-## API Down
-
-
-Objetivo:
-
-Detectar indisponibilidade da aplicação.
-
-
-Regra:
-
-```
-up{job="sre-api"} < 1
-```
-
-
----
-
-## API High Latency P95
-
-
-Objetivo:
-
-Detectar degradação de performance.
-
-
-Condição:
-
-```
-P95 > 1 segundo
-```
-
-
----
-
-# 🔥 Testes de Incidentes Realizados
-
-
-## Simulação de erro HTTP 500
-
-
-Foi criada uma rota de teste:
-
+O endpoint:
 
 ```
 GET /erro
 ```
 
+simula uma falha de aplicação.
 
-Resultado:
+Resposta:
 
+```json
+{
+ "error":"Erro simulado SRE para teste de observabilidade",
+ "status":"FAILED"
+}
+```
+
+O Dynatrace identifica:
 
 ```
-HTTP 500 INTERNAL SERVER ERROR
+Endpoint:
+GET /erro
+
+Service:
+sre-api
+
+Status:
+500 Failure
 ```
 
+Esse cenário representa:
 
-Impacto observado:
-
-- Error Rate aumentou
-- Alerta mudou para Pending
-- Alerta mudou para Firing
-
+* Detecção de incidente
+* Investigação
+* Análise de causa
+* Monitoramento de impacto
 
 ---
 
-## Simulação de indisponibilidade
+# 📈 SRE Practices Implementadas
 
+## Monitoramento
 
-Container da API foi parado:
+Implementado:
 
+✅ Health checks
+✅ Métricas de aplicação
+✅ Monitoramento de containers
+✅ Traces distribuídos
+
+---
+
+## SLIs
+
+Indicadores acompanhados:
+
+### Disponibilidade
+
+Exemplo:
+
+```
+Requests bem sucedidos / Total de requests
+```
+
+---
+
+### Taxa de erro
+
+Objetivo:
+
+```
+Erro HTTP 5xx < 1%
+```
+
+---
+
+### Latência
+
+Monitoramento:
+
+```
+Tempo de resposta
+p95
+p99
+```
+
+---
+
+# 🛠️ Tecnologias Utilizadas
+
+## Backend
+
+* Python
+* Flask
+* REST API
+
+## Observabilidade
+
+* Dynatrace
+* OpenTelemetry
+* Prometheus
+* Grafana
+* Loki
+* Promtail
+* Jaeger
+
+## Infraestrutura
+
+* Docker
+* Docker Compose
+* PostgreSQL
+
+## Conceitos SRE
+
+* Observability
+* Distributed Tracing
+* Monitoring
+* Incident Management
+* Reliability Engineering
+* SLI / SLO
+* Error Budget
+* Troubleshooting
+
+---
+
+# 📂 Estrutura do Projeto
+
+```
+SRE-LAB/
+
+├── apps/
+│   └── api/
+│       ├── app.py
+│       ├── Dockerfile
+│       └── requirements.txt
+│
+
+├── services/
+
+│   ├── cliente-service/
+│   │   ├── app.py
+│   │   └── Dockerfile
+│
+│   └── pedido-service/
+│       ├── app.py
+│       └── Dockerfile
+│
+
+├── monitoring/
+
+│   ├── prometheus/
+│   ├── grafana/
+│   ├── loki/
+│   └── promtail/
+
+│
+
+├── docker-compose.yml
+
+└── README.md
+```
+
+---
+
+# ▶️ Executando o Projeto
+
+Clonar:
 
 ```bash
-docker stop sre-api
+git clone <repositorio>
 ```
 
+Entrar no projeto:
 
-Resultado:
+```bash
+cd SRE-LAB
+```
 
+Subir ambiente:
 
-- Métrica UP alterada
-- Alerta API Down disparado
+```bash
+docker compose up -d --build
+```
 
+Verificar:
 
----
-
-## Simulação de lentidão
-
-
-Foi adicionada latência artificial na aplicação.
-
-
-Resultado:
-
-
-- P95 aumentou
-- Alerta de latência validado
-
+```bash
+docker ps
+```
 
 ---
 
-# 📚 Conceitos SRE Aplicados
+# 🧪 Testes
 
+API:
 
-Neste projeto foram aplicados:
+```bash
+curl http://localhost:5000
+```
 
+Clientes:
 
-- Observabilidade
-- Monitoramento baseado em métricas
-- SLIs
-- SLOs
-- Alertas inteligentes
-- Detecção de incidentes
-- Troubleshooting
-- Alta disponibilidade
-- Cultura DevOps
+```bash
+curl http://localhost:5000/clientes
+```
 
+Pedidos:
 
----
+```bash
+curl http://localhost:5000/pedidos
+```
 
-# 🔮 Próximas Melhorias
+Erro:
 
-
-Possíveis evoluções:
-
-
-- Integração com Kubernetes
-- Deploy utilizando Helm
-- Infraestrutura com Terraform
-- Logs centralizados com Loki
-- Tracing distribuído com OpenTelemetry
-- Integração com ferramentas como Datadog e Dynatrace
-- Pipeline CI/CD
-
+```bash
+curl http://localhost:5000/erro
+```
 
 ---
 
+# 🎯 Objetivo Profissional
 
-Projeto desenvolvido para estudos práticos de:
+Este laboratório demonstra conhecimentos aplicados em:
+
+* Analista SRE Jr
+* DevOps
+* Cloud Operations
+* Monitoramento de aplicações
+* Troubleshooting
+* Observabilidade moderna
+
+O projeto simula um ambiente real onde um profissional SRE precisa:
+
+1. Monitorar sistemas
+2. Detectar problemas
+3. Investigar impactos
+4. Encontrar causa raiz
+5. Melhorar confiabilidade
+
+--
 
 **Site Reliability Engineering (SRE)**
+**Observabilidade**
+**Cloud Native**
 **DevOps**
-**Cloud Native Observability**
