@@ -395,7 +395,7 @@ services:
     volumes:
 
       - ./monitoring/otel-collector/config.yaml:/etc/otelcol/config.yaml
-
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
 
     networks:
 
